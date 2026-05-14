@@ -1,0 +1,28 @@
+services:
+  app:
+    build: .
+    ports:
+      - "7001:7001"
+    env_file: .env
+    environment:
+      - POSTGRES_ADDR=postgres:5432
+      - SERVER_HOST=0.0.0.0
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5436:5432"
+    env_file: .env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:  
