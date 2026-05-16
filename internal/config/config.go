@@ -4,7 +4,6 @@ import (
 	"errors"
 	"log/slog"
 	"os"
-
 	"github.com/ilyakaznacheev/cleanenv"
 )
 

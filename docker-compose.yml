@@ -2,7 +2,7 @@ services:
   app:
     build: .
     ports:
-      - "7001:7001"
+      - "8084:8084"
     env_file: .env
     environment:
       - POSTGRES_ADDR=postgres:5432
