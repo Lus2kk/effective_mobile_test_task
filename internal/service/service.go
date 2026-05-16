@@ -121,6 +121,9 @@ func (s *SubscriptionService) GetListOfSubscriptionsByUserID(ctx context.Context
 	if err != nil {
 		return nil, fmt.Errorf("trouble getting list of subscriptions: %w", err)
 	}
+	if len(subs) == 0 {
+		return nil, fmt.Errorf("for user %s subscriptions are not found", userID)
+	}
 	for _, sub := range subs {
 		plan, err := s.GetPlanByStartAndEndDates(ctx, sub.StartDate, sub.EndDate)
 		if err != nil {

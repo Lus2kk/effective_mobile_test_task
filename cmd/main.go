@@ -5,10 +5,12 @@ import (
 	"log/slog"
 	"test_effective_mobile_task/internal/config"
 	"test_effective_mobile_task/internal/handler"
+	"test_effective_mobile_task/internal/middleware"
 	"test_effective_mobile_task/internal/repo"
 	"test_effective_mobile_task/internal/routes"
 	"test_effective_mobile_task/internal/service"
 	"test_effective_mobile_task/storage"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -28,7 +30,6 @@ func main () {
 	router := gin.Default()
 
 	slog.Info("Config loaded successfully")
-	//TODO: logger init
 
 	//TODO: db init
 	db, err := storage.InitDatabase(cfg.Database)
@@ -54,7 +55,8 @@ func main () {
 	
 	slog.Info("Handler initialized successfully")
 
-	//TODO: register routes
+	//TODO: register routes and log middleware 
+	router.Use(middleware.Logger())
 	routes.SubscriptionRoutes(router, handler)
 	slog.Info("Routes registered successfully! Server is running...")
 

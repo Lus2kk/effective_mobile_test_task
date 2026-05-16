@@ -6,6 +6,7 @@ import (
 	"strings"
 	"test_effective_mobile_task/internal/models"
 	"test_effective_mobile_task/internal/service"
+
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -52,6 +53,11 @@ func (h *SubscriptionHandler) GetSubscriptionHandler(ctx *gin.Context) {
 	serviceName := ctx.Query("service_name")
 	subscription, err := h.Service.GetSubscriptionByUserIDAndServiceName(ctx.Request.Context(), userID, serviceName)
 	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			ctx.JSON(http.StatusNotFound, gin.H {
+			  "error" : "subscription not found", 
+			})
+		}
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get subscription", "details": err.Error()})
 		return
 	}
@@ -135,6 +141,11 @@ func (h *SubscriptionHandler) GetListOfSubscriptionsHandler(ctx *gin.Context) {
 	}
 	subs, err := h.Service.GetListOfSubscriptionsByUserID(ctx.Request.Context(), userID)
 	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			ctx.JSON(http.StatusNotFound, gin.H{
+				"error" : "nothing was found",
+			})
+		}
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get list of subscriptions", "details": err.Error()})
 		return
 	}
