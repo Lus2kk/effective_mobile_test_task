@@ -133,3 +133,18 @@ func (s *SubscriptionService) GetListOfSubscriptionsByUserID(ctx context.Context
 	}
 	return subs, nil
 }
+
+func (s *SubscriptionService) GetTotalPriceOfSubscriptionsByUserID (ctx context.Context, userID uuid.UUID) ( int, error) {
+    subs, err := s.Repo.GetListSubscriptionsByUserIDRepo(ctx, userID)
+	if err != nil {
+		return 0, fmt.Errorf("subscriptions list cannot be got: %w", err)
+	}
+	if len(subs) == 0 {
+		return 0, fmt.Errorf("for user %s subscriptions not found ", userID)
+	}
+	total := 0
+    for _, sub := range subs {
+        total += sub.Price
+    }
+	return total, nil
+}

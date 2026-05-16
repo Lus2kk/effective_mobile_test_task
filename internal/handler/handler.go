@@ -20,7 +20,17 @@ func NewSubscriptionHandler(service *service.SubscriptionService) *SubscriptionH
 		Service: service,
 	}
 }
-
+// @Summary Создать подписку
+// @Description Создает новую подписку для пользователя
+// @Tags subscriptions
+// @Accept json
+// @Produce json
+// @Param request body service.CreateSubscriptionRequest true "Данные подписки"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 409 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /create [post]
 func (h *SubscriptionHandler) CreateSubscriptionHandler(ctx *gin.Context) {
 	var req service.CreateSubscriptionRequest
 	err := ctx.ShouldBindJSON(&req)
@@ -43,6 +53,17 @@ func (h *SubscriptionHandler) CreateSubscriptionHandler(ctx *gin.Context) {
 		})
 }
 
+// @Summary Получить подписку
+// @Description Получает подписку по ID пользователя и названию сервиса
+// @Tags subscriptions
+// @Produce json
+// @Param user_id query string true "UUID пользователя"
+// @Param service_name query string true "Название сервиса"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 404 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /get [get]
 func (h *SubscriptionHandler) GetSubscriptionHandler(ctx *gin.Context) {
 	userIDstr := ctx.Query("user_id")
 	userID, err := uuid.Parse(userIDstr)
@@ -66,6 +87,15 @@ func (h *SubscriptionHandler) GetSubscriptionHandler(ctx *gin.Context) {
 	})
 }
 
+// @Summary Удалить подписку
+// @Description Удаляет подписку по ID
+// @Tags subscriptions
+// @Produce json
+// @Param subscription_id query string true "UUID подписки"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /delete [delete]
 func (h *SubscriptionHandler) DeleteSubscriptionHandler(ctx *gin.Context) {
     subscriptionIDstr := ctx.Query("subscription_id")
     if subscriptionIDstr == "" {
@@ -85,6 +115,18 @@ func (h *SubscriptionHandler) DeleteSubscriptionHandler(ctx *gin.Context) {
     ctx.JSON(http.StatusOK, gin.H{"message": "Subscription deleted successfully"})
 }
 
+// @Summary Обновить план подписки
+// @Description Обновляет план и цену подписки по ID пользователя и названию сервиса
+// @Tags subscriptions
+// @Produce json
+// @Param user_id query string true "UUID пользователя"
+// @Param service_name query string true "Название сервиса"
+// @Param new_plan query string true "Новый план (monthly/half_yearly/yearly)"
+// @Param price query int true "Новая цена"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /updateplan [put]
 func (h *SubscriptionHandler) UpdateSubscriptionPlanHandler(ctx *gin.Context) {
 	userIDstr := ctx.Query("user_id")
 	if userIDstr == "" {
@@ -131,7 +173,16 @@ func (h *SubscriptionHandler) UpdateSubscriptionPlanHandler(ctx *gin.Context) {
 	})
 }
 
-
+// @Summary Получить список подписок
+// @Description Получает все подписки пользователя
+// @Tags subscriptions
+// @Produce json
+// @Param user_id query string true "UUID пользователя"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 404 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /list [get]
 func (h *SubscriptionHandler) GetListOfSubscriptionsHandler(ctx *gin.Context) {
 	userIDstr := ctx.Query("user_id")
 	userID, err := uuid.Parse(userIDstr)
@@ -152,4 +203,36 @@ func (h *SubscriptionHandler) GetListOfSubscriptionsHandler(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"subscriptions": subs,
 	})
+}
+
+// @Summary Получить общую стоимость подписок
+// @Description Считает суммарную стоимость всех подписок пользователя
+// @Tags subscriptions
+// @Produce json
+// @Param user_id query string true "UUID пользователя"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 404 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /total [get]
+func (h *SubscriptionHandler) GetTotalPriceHandler(ctx *gin.Context) {
+    userIDstr := ctx.Query("user_id")
+    userID, err := uuid.Parse(userIDstr)
+    if err != nil {
+        ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+        return
+    }
+    total, err := h.Service.GetTotalPriceOfSubscriptionsByUserID(ctx.Request.Context(), userID)
+    if err != nil {
+        if strings.Contains(err.Error(), "not found") {
+            ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+            return
+        }
+        ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get total price", "details": err.Error()})
+        return
+    }
+    ctx.JSON(http.StatusOK, gin.H{
+        "user_id": userID,
+        "total_price": total,
+    })
 }

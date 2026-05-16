@@ -1,0 +1,254 @@
+basePath: /subscriptions
+definitions:
+  models.Plan:
+    enum:
+    - monthly
+    - half_yearly
+    - yearly
+    type: string
+    x-enum-varnames:
+    - Monthly
+    - HalfYearly
+    - Yearly
+  service.CreateSubscriptionRequest:
+    properties:
+      plan:
+        $ref: '#/definitions/models.Plan'
+      price:
+        type: integer
+      service_name:
+        type: string
+      user_id:
+        type: string
+    type: object
+host: localhost:8084
+info:
+  contact: {}
+  description: API для управления подписками пользователей
+  title: Subscription API
+  version: "1.0"
+paths:
+  /create:
+    post:
+      consumes:
+      - application/json
+      description: Создает новую подписку для пользователя
+      parameters:
+      - description: Данные подписки
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/service.CreateSubscriptionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Создать подписку
+      tags:
+      - subscriptions
+  /delete:
+    delete:
+      description: Удаляет подписку по ID
+      parameters:
+      - description: UUID подписки
+        in: query
+        name: subscription_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Удалить подписку
+      tags:
+      - subscriptions
+  /get:
+    get:
+      description: Получает подписку по ID пользователя и названию сервиса
+      parameters:
+      - description: UUID пользователя
+        in: query
+        name: user_id
+        required: true
+        type: string
+      - description: Название сервиса
+        in: query
+        name: service_name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Получить подписку
+      tags:
+      - subscriptions
+  /list:
+    get:
+      description: Получает все подписки пользователя
+      parameters:
+      - description: UUID пользователя
+        in: query
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Получить список подписок
+      tags:
+      - subscriptions
+  /total:
+    get:
+      description: Считает суммарную стоимость всех подписок пользователя
+      parameters:
+      - description: UUID пользователя
+        in: query
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Получить общую стоимость подписок
+      tags:
+      - subscriptions
+  /updateplan:
+    put:
+      description: Обновляет план и цену подписки по ID пользователя и названию сервиса
+      parameters:
+      - description: UUID пользователя
+        in: query
+        name: user_id
+        required: true
+        type: string
+      - description: Название сервиса
+        in: query
+        name: service_name
+        required: true
+        type: string
+      - description: Новый план (monthly/half_yearly/yearly)
+        in: query
+        name: new_plan
+        required: true
+        type: string
+      - description: Новая цена
+        in: query
+        name: price
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Обновить план подписки
+      tags:
+      - subscriptions
+swagger: "2.0"

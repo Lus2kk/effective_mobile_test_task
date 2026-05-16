@@ -15,11 +15,12 @@ import (
 )
 
 
-
+// @title Subscription API
+// @version 1.0
+// @description API для управления подписками пользователей
+// @host localhost:8084
+// @BasePath /subscriptions
 func main () {
-
-
-
 	//config
 	cfg, err := config.MustLoad()
 	if err != nil {
